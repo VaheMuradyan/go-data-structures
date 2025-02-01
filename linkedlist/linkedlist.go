@@ -21,9 +21,8 @@ func NewLinkedList[T comparable]() *LinkedList[T] {
 	return &LinkedList[T]{}
 }
 
-func (list *LinkedList[T]) Add(element T) bool {
+func (list *LinkedList[T]) Add(element T) *LinkedList[T] {
 	newNode := &Node[T]{data: element}
-
 	if list.size == 0 {
 		list.head = newNode
 		list.tail = newNode
@@ -32,9 +31,8 @@ func (list *LinkedList[T]) Add(element T) bool {
 		list.tail.next = newNode
 		list.tail = newNode
 	}
-
 	list.size++
-	return true
+	return list
 }
 
 func (list *LinkedList[T]) AddFirst(element T) {
@@ -174,23 +172,17 @@ func (list *LinkedList[T]) Remove(element T) bool {
 	return false
 }
 
-func (list *LinkedList[T]) RemoveAt(index int) (T, error) {
-	var zero T
+func (list *LinkedList[T]) RemoveAt(index int) bool {
 	if index < 0 || index >= list.size {
-		return zero, errors.New("index out of range")
+		return false
 	}
 
-	var element T
 	if index == 0 {
-		element = list.head.data
-		list.RemoveFirst()
-		return element, nil
+		return list.RemoveFirst()
 	}
 
 	if index == list.size-1 {
-		element = list.tail.data
-		list.RemoveLast()
-		return element, nil
+		return list.RemoveLast()
 	}
 
 	current := list.head
@@ -198,12 +190,14 @@ func (list *LinkedList[T]) RemoveAt(index int) (T, error) {
 		current = current.next
 	}
 
-	element = current.data
 	current.prev.next = current.next
 	current.next.prev = current.prev
-	list.size--
 
-	return element, nil
+	current.next = nil
+	current.prev = nil
+
+	list.size--
+	return true
 }
 
 func (list *LinkedList[T]) RemoveFirst() bool {
